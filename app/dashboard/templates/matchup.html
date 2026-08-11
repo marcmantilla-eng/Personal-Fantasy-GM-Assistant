@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Week {{ result.week }} Matchup</h1>
+  <div class="subtitle">Projected score comparison using each team's optimal lineup.</div>
+
+  <div class="card">
+    <div class="score-row">
+      <div class="score-box">
+        <div class="num">{{ result.my_projected_total }}</div>
+        <div class="label">{{ result.my_team_name }} (You)</div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="score-box">
+        <div class="num">{{ result.opponent_projected_total }}</div>
+        <div class="label">{{ result.opponent_team_name }}</div>
+      </div>
+    </div>
+    <div class="outlook">
+      <span class="badge {{ 'good' if result.point_difference > 0 else 'bad' }}">{{ result.outlook }}</span>
+      <div class="explanation">{{ result.summary }}</div>
+    </div>
+  </div>
+
+  <h2>Your Lineup</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Slot</th><th>Player</th><th>Opponent</th><th>Projected</th></tr></thead>
+      <tbody>
+        {% for slot, player in result.my_lineup.items() %}
+        <tr>
+          <td><span class="pos-pill">{{ slot }}</span></td>
+          {% if player %}
+          <td>{{ player.name }}</td><td>{{ player.opponent }}</td><td>{{ player.projected_points }}{% if player.projection_is_estimate %} <span class="badge dim">Estimate</span>{% endif %}</td>
+          {% else %}
+          <td colspan="3" class="empty-state">No eligible player</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Opponent Lineup</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Slot</th><th>Player</th><th>Opponent</th><th>Projected</th></tr></thead>
+      <tbody>
+        {% for slot, player in result.opponent_lineup.items() %}
+        <tr>
+          <td><span class="pos-pill">{{ slot }}</span></td>
+          {% if player %}
+          <td>{{ player.name }}</td><td>{{ player.opponent }}</td><td>{{ player.projected_points }}{% if player.projection_is_estimate %} <span class="badge dim">Estimate</span>{% endif %}</td>
+          {% else %}
+          <td colspan="3" class="empty-state">No eligible player</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

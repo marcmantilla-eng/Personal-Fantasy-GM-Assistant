@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Waiver Wire &amp; Free Agents</h1>
+  <div class="subtitle">Recommended pickups compared against your weakest bench player at that position. Nothing is submitted automatically — you'd action these yourself on Yahoo.</div>
+
+  {% if recommendations %}
+    {% for r in recommendations %}
+      <div class="card">
+        <div class="score-row" style="justify-content: flex-start; gap: 12px;">
+          <span class="badge good">ADD</span>
+          <strong>{{ r.add_name }}</strong>
+          <span class="pos-pill">{{ r.add_position }}</span>
+          <span>{{ r.add_team }}</span>
+          <span class="badge {{ 'good' if r.trending == 'up' else 'dim' }}">Trending: {{ r.trending }}</span>
+          <span class="badge dim">{{ r.percent_owned }}% owned</span>
+          {% if r.projection_is_estimate %}<span class="badge dim" title="Yahoo doesn't publish this number — estimated from recent scoring">Estimate</span>{% endif %}
+        </div>
+        <div class="score-row" style="justify-content: flex-start; gap: 12px; margin-top: 6px;">
+          <span class="badge bad">DROP</span>
+          <strong>{{ r.drop_name }}</strong>
+          <span class="badge {{ 'good' if r.point_gain > 0 else 'dim' }}">+{{ r.point_gain }} pts/wk gain</span>
+          <span class="badge {{ 'good' if r.confidence == 'High' else ('warn' if r.confidence == 'Medium' else 'dim') }}">Confidence: {{ r.confidence }}</span>
+        </div>
+        <div class="explanation">{{ r.explanation }}</div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="card"><div class="empty-state">No worthwhile pickups found this week based on your current bench strength.</div></div>
+  {% endif %}
+{% endblock %}

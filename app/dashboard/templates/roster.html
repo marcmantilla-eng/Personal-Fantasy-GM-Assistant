@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ team_name }} — Week {{ week }}</h1>
+  <div class="subtitle">Your recommended starting lineup, alerts, and starter-vs-bench reasoning below. Nothing here changes your real Yahoo team.</div>
+
+  {% if alerts %}
+    <h2>Alerts</h2>
+    {% for a in alerts %}
+      {% set sev = 'high' if a.confidence == 'High' else ('low' if 'Low' in a.confidence else 'medium') %}
+      <div class="alert {{ sev }}">
+        <div class="title">{{ a.player_name }} ({{ a.position }}) — {{ a.status }}
+          <span class="badge {{ 'bad' if sev == 'high' else ('warn' if sev == 'medium' else 'dim') }}">Confidence: {{ a.confidence }}</span>
+        </div>
+        <div class="msg">{{ a.message }}</div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <h2>Alerts</h2>
+    <div class="card"><div class="empty-state">No injuries, bye weeks, or status concerns among your starters this week.</div></div>
+  {% endif %}
+
+  <h2>Recommended Starting Lineup</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Slot</th><th>Player</th><th>NFL Team</th><th>Opponent</th><th>Matchup</th><th>Projected</th></tr></thead>
+      <tbody>
+        {% for slot, player in lineup.items() %}
+        <tr>
+          <td><span class="pos-pill">{{ slot }}</span></td>
+          {% if player %}
+            <td>{{ player.name }}</td>
+            <td>{{ player.nfl_team }}</td>
+            <td>{{ player.opponent }}</td>
+            <td>{{ player.matchup_quality }}</td>
+            <td>{{ player.projected_points }}{% if player.projection_is_estimate %} <span class="badge dim" title="Yahoo doesn't publish this number — estimated from recent scoring">Estimate</span>{% endif %}</td>
+          {% else %}
+            <td colspan="5" class="empty-state">No eligible player available for this slot</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if swaps %}
+  <h2>Suggested Changes vs. Your Current Lineup</h2>
+  <div class="card">
+    {% for s in swaps %}
+      <div class="explanation">
+        <span class="badge {{ 'good' if s.action == 'start' else 'bad' }}">{{ 'Start' if s.action == 'start' else 'Bench' }}</span>
+        {{ s.player_name }} ({{ s.slot }}) — {{ s.reason }}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if comparisons %}
+  <h2>Starter vs. Bench Comparisons</h2>
+  {% for c in comparisons %}
+    <div class="card">
+      <div><strong>{{ c.slot }}:</strong> {{ c.recommended_starter }} ({{ c.recommended_points }} pts) vs {{ c.current_starter }} ({{ c.current_points }} pts)
+        <span class="badge {{ 'good' if c.point_difference > 0 else 'bad' }}">{{ '+' if c.point_difference > 0 else '' }}{{ c.point_difference }} pts</span>
+      </div>
+      <div class="explanation">{{ c.explanation }}</div>
+    </div>
+  {% endfor %}
+  {% endif %}
+
+  <h2>Bench</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Player</th><th>Position</th><th>NFL Team</th><th>Status</th><th>Projected</th></tr></thead>
+      <tbody>
+        {% for p in bench %}
+        <tr>
+          <td>{{ p.name }}</td>
+          <td><span class="pos-pill">{{ p.position }}</span></td>
+          <td>{{ p.nfl_team }}</td>
+          <td>{{ p.status }}</td>
+          <td>{{ p.projected_points }}{% if p.projection_is_estimate %} <span class="badge dim">Estimate</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

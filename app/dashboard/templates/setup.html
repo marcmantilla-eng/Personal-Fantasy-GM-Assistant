@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Setup — Connect to Yahoo</h1>
+  <div class="subtitle">
+    This app is read-only: it can look at your real league, roster, and free agents,
+    but it will never change your Yahoo team, submit a waiver claim, or make a draft pick
+    on your behalf. You stay in Mock Data Mode until you finish all three steps below.
+  </div>
+
+  <h2>Step 1: Yahoo Developer Credentials</h2>
+  <div class="card">
+    {% if has_credentials %}
+      <div><span class="badge good">Found</span> Client ID and Secret were loaded from your .env file.</div>
+    {% else %}
+      <div><span class="badge bad">Missing</span> No Yahoo Client ID/Secret found.</div>
+      <div class="explanation">
+        Register a free app at Yahoo's developer site to get a Client ID and Client Secret,
+        then put them in a file named <code>.env</code> in this project's main folder
+        (copy <code>.env.example</code> as a starting point and fill in your own values).
+        This app never displays or logs those values anywhere.
+      </div>
+    {% endif %}
+  </div>
+
+  <h2>Step 2: Connect Your Yahoo Account</h2>
+  <div class="card">
+    {% if connected %}
+      <div><span class="badge good">Connected</span> A saved Yahoo login was found.</div>
+    {% else %}
+      <div><span class="badge dim">Not connected yet</span></div>
+      <div class="explanation">
+        Clicking Connect opens your web browser to Yahoo's sign-in and permission page.
+        Yahoo will show you a short code — <strong>copy that code and paste it into the
+        console/terminal window this app is running in</strong> (not into this web page),
+        then press Enter there. This is normal for a "no public website" desktop app like
+        this one, and it only needs to be done once.
+      </div>
+      <form method="POST" action="/setup/connect" style="margin-top: 10px;">
+        <button type="submit" {% if not has_credentials %}disabled{% endif %}>Connect to Yahoo</button>
+      </form>
+    {% endif %}
+
+    {% if connect_error %}
+      <div class="alert high" style="margin-top: 12px;">
+        <div class="title">Couldn't load your leagues</div>
+        <div class="msg">{{ connect_error }}</div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if connected %}
+  <h2>Step 3: Choose Your League and Team</h2>
+  <div class="card">
+    {% if leagues %}
+      <form method="GET" action="/setup">
+        <label for="league_key">League</label><br>
+        <select name="league_key" id="league_key" onchange="this.form.submit()">
+          <option value="">-- choose a league --</option>
+          {% for lg in leagues %}
+            <option value="{{ lg.league_key }}" {{ 'selected' if lg.league_key == selected_league_key else '' }}>
+              {{ lg.name }} ({{ lg.season }})
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+
+      {% if selected_league_key %}
+        <form method="POST" action="/setup/select" style="margin-top: 16px;">
+          <input type="hidden" name="league_key" value="{{ selected_league_key }}">
+          <label for="team_key">Your Team</label><br>
+          <select name="team_key" id="team_key">
+            <option value="">-- choose your team --</option>
+            {% for tm in teams %}
+              <option value="{{ tm.team_key }}" {{ 'selected' if tm.team_key == settings.team_key else '' }}>
+                {{ tm.name }}{{ ' (this is you)' if tm.is_my_team else '' }}
+              </option>
+            {% endfor %}
+          </select>
+          <div style="margin-top: 10px;">
+            <label>
+              <input type="checkbox" name="use_live" {{ 'checked' if settings.data_source == 'yahoo' else '' }}>
+              Use this real Yahoo data on the dashboard (uncheck to go back to Mock Data Mode)
+            </label>
+          </div>
+          <button type="submit" style="margin-top: 10px;">Save</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <div class="empty-state">No leagues found for this Yahoo account for the current sport.</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if connection_error %}
+    <div class="alert medium">
+      <div class="title">Currently showing Mock Data</div>
+      <div class="msg">Live Yahoo data couldn't be loaded, so the dashboard fell back to mock data: {{ connection_error }}</div>
+    </div>
+  {% endif %}
+{% endblock %}

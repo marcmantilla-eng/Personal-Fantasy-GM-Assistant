@@ -1,0 +1,5 @@
+Flask==3.0.3
+pytest==8.3.3
+yahoo-fantasy-api==2.11.0
+yahoo_oauth==2.1.1
+python-dotenv==1.0.1

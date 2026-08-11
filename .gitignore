@@ -1,0 +1,15 @@
+# Secrets -- never commit these
+.env
+oauth2.json
+
+# Local, non-secret user preferences (which league/team, mock vs live)
+user_settings.json
+
+# Local audit trail -- personal data about your own league, not code
+logs/*.csv
+
+# Python / virtual environment
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/

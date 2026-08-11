@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Draft Assistant</h1>
+  <div class="subtitle">Rankings adjusted for your league's positional needs. This mock draft board shows a few players already taken. You always make the actual pick in Yahoo — this app never drafts for you.</div>
+
+  <div class="controls">Already drafted this mock draft: {{ drafted_ids|length }} players hidden from the board below.</div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th><th>Player</th><th>Pos</th><th>Team</th><th>Bye</th>
+          <th>Proj. Pts</th><th>ADP</th><th>Team Need</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in board %}
+        <tr>
+          <td>{{ p.recommended_rank }}</td>
+          <td>{{ p.name }}</td>
+          <td><span class="pos-pill">{{ p.position }}</span></td>
+          <td>{{ p.nfl_team }}</td>
+          <td>{{ p.bye_week }}</td>
+          <td>{{ p.projected_season_points }}</td>
+          <td>{{ p.adp }}</td>
+          <td>
+            {% if p.team_need_level >= 2 %}<span class="badge good">High need</span>
+            {% elif p.team_need_level == 1 %}<span class="badge warn">Some need</span>
+            {% else %}<span class="badge dim">Depth only</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Why these ranks?</h2>
+  {% for p in board[:5] %}
+    <div class="card">
+      <strong>#{{ p.recommended_rank }} {{ p.name }}</strong> ({{ p.position }}, {{ p.nfl_team }})
+      <div class="explanation">{{ p.explanation }}</div>
+    </div>
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fantasy Assistant (Mock Data)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">🏈 Fantasy Football Assistant</div>
+    <div class="league-name">
+      {{ league_name }} &middot;
+      {% if is_live %}
+        <span class="badge good">Live Yahoo Data</span>
+      {% else %}
+        <span class="badge dim">Mock Data Mode — not connected to Yahoo</span>
+      {% endif %}
+    </div>
+  </div>
+  <nav class="tabs">
+    <a href="/roster" class="{{ 'active' if active_page == 'roster' else '' }}">Roster &amp; Lineup</a>
+    <a href="/waivers" class="{{ 'active' if active_page == 'waivers' else '' }}">Waiver Wire</a>
+    <a href="/matchup" class="{{ 'active' if active_page == 'matchup' else '' }}">Matchup</a>
+    <a href="/draft" class="{{ 'active' if active_page == 'draft' else '' }}">Draft Assistant</a>
+    <a href="/setup" class="{{ 'active' if active_page == 'setup' else '' }}">Setup</a>
+  </nav>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
